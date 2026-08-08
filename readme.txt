@@ -4,11 +4,11 @@ Tags: markdown, importer, content, yaml, front matter
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Import Markdown files with YAML front matter into WordPress posts, including categories, tags, SEO metadata, and source URLs.
+Import Markdown files with YAML front matter into WordPress posts, including categories, tags, SEO metadata, sources, and optional authenticated REST automation.
 
 == Description ==
 
@@ -33,13 +33,27 @@ The built-in Markdown parser supports headings, paragraphs, unordered and ordere
 
 No external service is required and the plugin does not send site data to third parties.
 
+= REST API =
+
+Version 1.1.0 adds an optional authenticated endpoint for automated imports. It is disabled by default and can only be enabled by an administrator under **Tools > Import Markdown**.
+
+Endpoint:
+
+`POST /wp-json/wp24h-md-importer/v1/import`
+
+JSON body:
+
+`{"markdown":"---\ntitle: Example\n---\n\nPost content","update_existing":true}`
+
+The endpoint uses normal WordPress REST authentication and requires the authenticated user to have the `edit_posts` capability. WordPress Application Passwords over HTTPS are recommended for external automation.
+
 = SEO metadata =
 
 The plugin always stores SEO title and meta description in its own post metadata. If Yoast SEO or Rank Math is active, it also writes to their commonly used post metadata fields.
 
 = Security =
 
-The importer uses WordPress capabilities and nonces, validates the uploaded file extension and size, sanitizes front matter fields, restricts generated HTML with `wp_kses_post()`, and does not allow users without publishing capability to force imported posts directly to published/private status.
+The importer uses WordPress capabilities and nonces, validates uploaded file extension and size, sanitizes front matter fields, restricts generated HTML with `wp_kses_post()`, limits REST payloads to 2 MB, and does not allow users without publishing capability to force imported posts directly to published/private status.
 
 = Development =
 
@@ -52,6 +66,7 @@ https://github.com/asllanmaciel/wp24h-md-importer
 2. Activate **WP24H MD Importer**.
 3. Go to **Tools > Import Markdown**.
 4. Select a Markdown file and click **Import post**.
+5. Optional: administrators can enable REST API imports on the same screen.
 
 == Frequently Asked Questions ==
 
@@ -61,7 +76,7 @@ No. The plugin includes a deliberately restricted parser for the front matter sc
 
 = What happens if a post with the same slug already exists? =
 
-By default it is updated. You can disable that behavior on the import screen to create a new post instead.
+By default it is updated. You can disable that behavior on the import screen or set `update_existing` to false in REST requests.
 
 = Can imported files publish posts automatically? =
 
@@ -71,7 +86,18 @@ Yes, when `status: publish` is present and the current WordPress user has permis
 
 No. Remote image URLs contained in Markdown are stored in post content as URLs, but the plugin itself does not fetch them during import.
 
+= Is the REST API public? =
+
+No. It is disabled by default. When enabled, requests must authenticate through WordPress and the authenticated user must have permission to edit posts.
+
 == Changelog ==
+
+= 1.1.0 =
+* Added optional REST API imports.
+* REST API is disabled by default and can only be enabled by administrators.
+* Added WordPress capability checks for API requests.
+* Added 2 MB REST payload limit.
+* Added guidance for WordPress Application Password authentication.
 
 = 1.0.0 =
 * Initial release.
@@ -82,5 +108,5 @@ No. Remote image URLs contained in Markdown are stored in post content as URLs, 
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial public release.
+= 1.1.0 =
+Adds an optional authenticated REST API for automated Markdown imports. The API remains disabled until an administrator explicitly enables it.
