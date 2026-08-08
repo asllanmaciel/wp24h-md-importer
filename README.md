@@ -2,7 +2,7 @@
 
 WordPress plugin for importing Markdown documents with YAML front matter into posts.
 
-Designed to be suitable for submission to the official WordPress.org Plugin Directory while keeping development on GitHub.
+Designed to remain suitable for submission to the official WordPress.org Plugin Directory while keeping development on GitHub.
 
 ## Features
 
@@ -14,8 +14,13 @@ Designed to be suitable for submission to the official WordPress.org Plugin Dire
 - Stores SEO title, meta description and source URLs.
 - Integrates with Yoast SEO and Rank Math metadata when those plugins are active.
 - Converts a practical Markdown subset to sanitized WordPress HTML.
+- Provides an optional authenticated REST API for automation.
 - Uses WordPress capabilities, nonces, sanitization and escaping.
 - Makes no external requests and performs no tracking.
+
+## Version
+
+Current development release: **1.1.0**.
 
 ## Front matter example
 
@@ -47,6 +52,38 @@ Everything after the closing `---` is treated as Markdown post content.
 3. Upload the ZIP and activate the plugin.
 4. Go to **Tools > Import Markdown**.
 
+## REST API automation
+
+The REST API is **disabled by default**. An administrator can enable it under **Tools > Import Markdown**.
+
+Endpoint:
+
+```text
+POST /wp-json/wp24h-md-importer/v1/import
+```
+
+Request body:
+
+```json
+{
+  "markdown": "---\ntitle: Example post\nstatus: draft\n---\n\n## Hello\n\nMarkdown content.",
+  "update_existing": true
+}
+```
+
+The endpoint uses standard WordPress REST authentication and requires the authenticated user to have `edit_posts`. For external automation, use HTTPS and a WordPress Application Password dedicated to the integration user.
+
+Example with cURL:
+
+```bash
+curl --user "USERNAME:APPLICATION_PASSWORD" \
+  --header "Content-Type: application/json" \
+  --data @payload.json \
+  https://example.com/wp-json/wp24h-md-importer/v1/import
+```
+
+The password must never be embedded in public source code or committed to Git.
+
 ## Supported Markdown
 
 The dependency-free renderer intentionally covers a practical subset: headings, paragraphs, ordered and unordered lists, blockquotes, links, remote images, bold, italic, strikethrough, inline code, fenced code blocks and horizontal rules.
@@ -55,7 +92,7 @@ The dependency-free renderer intentionally covers a practical subset: headings, 
 
 The repository includes the official `readme.txt` format, GPL-compatible licensing metadata, translation-ready strings, WordPress capability checks, nonce validation and a stable version header.
 
-WordPress.org's SVN repository is intended for releases. GitHub remains the development repository; approved releases can later be mirrored to WordPress.org SVN.
+WordPress.org's SVN repository is intended for official releases. GitHub remains the development repository; approved releases can later be mirrored to WordPress.org SVN.
 
 ## License
 
