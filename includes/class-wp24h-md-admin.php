@@ -15,6 +15,7 @@ final class WP24H_MD_Admin {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_post_wp24h_md_import', array( $this, 'handle_import' ) );
+		add_action( 'admin_post_wp24h_md_save_settings', array( $this, 'handle_settings' ) );
 	}
 
 	public function menu() {
@@ -37,6 +38,9 @@ final class WP24H_MD_Admin {
 		if ( $result ) {
 			delete_transient( $result_key );
 		}
+
+		$api_enabled = '1' === get_option( WP24H_MD_REST_API::OPTION_ENABLED, '0' );
+		$endpoint    = rest_url( 'wp24h-md-importer/v1/import' );
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html__( 'Import Markdown', 'wp24h-md-importer' ); ?></h1>
@@ -52,7 +56,7 @@ final class WP24H_MD_Admin {
 							<a href="<?php echo esc_url( $result['edit_url'] ); ?>"><?php echo esc_html__( 'Edit post', 'wp24h-md-importer' ); ?></a>
 						<?php endif; ?>
 					</p></div>
-				<?php endif; ?>
+			<?php endif; ?>
 			<?php endif; ?>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
@@ -75,6 +79,26 @@ final class WP24H_MD_Admin {
 
 				<?php submit_button( __( 'Import post', 'wp24h-md-importer' ) ); ?>
 			</form>
+
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<hr>
+				<h2><?php echo esc_html__( 'REST API', 'wp24h-md-importer' ); ?></h2>
+				<p><?php echo esc_html__( 'Enable an authenticated REST endpoint for automated Markdown imports. It is disabled by default.', 'wp24h-md-importer' ); ?></p>
+
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="wp24h_md_save_settings">
+					<?php wp_nonce_field( 'wp24h_md_save_settings', 'wp24h_md_settings_nonce' ); ?>
+					<label>
+						<input type="checkbox" name="api_enabled" value="1" <?php checked( $api_enabled ); ?>>
+						<?php echo esc_html__( 'Enable REST API imports', 'wp24h-md-importer' ); ?>
+					</label>
+					<p class="description">
+						<?php echo esc_html__( 'Authentication is handled by WordPress. Application Passwords over HTTPS are recommended for external automation.', 'wp24h-md-importer' ); ?>
+					</p>
+					<p><code><?php echo esc_html( $endpoint ); ?></code></p>
+					<?php submit_button( __( 'Save API settings', 'wp24h-md-importer' ), 'secondary' ); ?>
+				</form>
+			<?php endif; ?>
 
 			<hr>
 			<h2><?php echo esc_html__( 'Expected front matter', 'wp24h-md-importer' ); ?></h2>
@@ -147,6 +171,19 @@ Markdown content...</pre>
 		} catch ( Exception $exception ) {
 			set_transient( $result_key, array( 'error' => __( 'An unexpected error occurred while importing the file.', 'wp24h-md-importer' ) ), MINUTE_IN_SECONDS );
 		}
+
+		wp_safe_redirect( admin_url( 'tools.php?page=wp24h-md-importer' ) );
+		exit;
+	}
+
+	public function handle_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to change these settings.', 'wp24h-md-importer' ), '', array( 'response' => 403 ) );
+		}
+
+		check_admin_referer( 'wp24h_md_save_settings', 'wp24h_md_settings_nonce' );
+		$enabled = isset( $_POST['api_enabled'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['api_enabled'] ) ) ? '1' : '0';
+		update_option( WP24H_MD_REST_API::OPTION_ENABLED, $enabled, false );
 
 		wp_safe_redirect( admin_url( 'tools.php?page=wp24h-md-importer' ) );
 		exit;
