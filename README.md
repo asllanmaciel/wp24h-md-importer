@@ -20,9 +20,11 @@ Designed to remain suitable for submission to the official WordPress.org Plugin 
 - Uses WordPress capabilities, nonces, sanitization and escaping.
 - Performs no tracking and only makes an external request when a `featured_image` URL is explicitly supplied.
 
-## Version
+## Version and release status
 
-Current development release: **1.2.0**.
+Current plugin version: **1.2.0**.
+
+No GitHub tag/release has been published yet. The first GitHub release can be `v1.2.0` after clean WordPress runtime validation and ZIP inspection. See [`docs/RELEASING.md`](docs/RELEASING.md).
 
 ## Front matter example
 
@@ -107,6 +109,13 @@ Remote images written inside the Markdown body remain remote URLs in the generat
 The repository includes the official `readme.txt` format, GPL-compatible licensing metadata, translation-ready strings, WordPress capability checks, nonce validation and a stable version header.
 
 WordPress.org's SVN repository is intended for official releases. GitHub remains the development repository; approved releases can later be mirrored to WordPress.org SVN.
+
+## Development and release
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- [`SECURITY.md`](SECURITY.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
+- [`docs/RELEASING.md`](docs/RELEASING.md)
 
 ## License
 
