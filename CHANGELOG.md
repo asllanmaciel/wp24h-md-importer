@@ -4,6 +4,19 @@ All notable changes to WP24H MD Importer are documented here.
 
 The project follows Semantic Versioning.
 
+## [Unreleased]
+
+### Added
+
+- Security policy for private vulnerability reporting.
+- Contribution guidelines for compatibility, security and review expectations.
+- Manual distribution build script for producing a clean WordPress plugin ZIP without GitHub Actions.
+- Distribution exclusion rules through `.distignore`.
+
+### Changed
+
+- GitHub Actions PHP lint is manual-only while CI usage is being optimized, avoiding automatic Actions consumption on every push and pull request.
+
 ## [1.2.0] - 2026-08-12
 
 ### Added
