@@ -1,10 +1,10 @@
 name: PHP Lint
 
+# Automatic runs are intentionally paused while GitHub Actions usage is being
+# optimized. Run this workflow manually before releases or when compatibility
+# validation is needed.
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
