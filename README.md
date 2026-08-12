@@ -110,6 +110,15 @@ The repository includes the official `readme.txt` format, GPL-compatible licensi
 
 WordPress.org's SVN repository is intended for official releases. GitHub remains the development repository; approved releases can later be mirrored to WordPress.org SVN.
 
+## Ecossistema WordPress relacionado
+
+O MD Importer é um exemplo de plugin funcional dentro de uma linha maior de ferramentas WordPress:
+
+- **[WP24H Plugin Boilerplate](https://github.com/WP24Horas/wp24h-plugin-boilerplate)** — base modular para novos plugins com testes, análise estática, Settings API e REST.
+- **[WP Plugin Readme Validator](https://github.com/asllanmaciel/wp-plugin-readme-validator)** — CLI e GitHub Action para verificar consistência entre o cabeçalho do plugin e o `readme.txt` antes de uma release.
+
+O Boilerplate ajuda a iniciar bem, o Validator ajuda a publicar com metadados consistentes e este repositório mostra padrões aplicados em um plugin de automação editorial real.
+
 ## Development and release
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)
