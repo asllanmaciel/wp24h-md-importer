@@ -4,6 +4,23 @@ All notable changes to WP24H MD Importer are documented here.
 
 The project follows Semantic Versioning.
 
+## [1.2.0] - 2026-08-12
+
+### Added
+
+- `featured_image` front matter field for remote featured image imports.
+- `featured_image_alt` support for accessible attachment alt text.
+- Featured image attachment ID in importer responses.
+
+### Changed
+
+- Repeated imports reuse an attachment previously sideloaded from the same source URL instead of creating duplicate Media Library entries.
+
+### Security
+
+- Featured image imports require the `upload_files` capability.
+- Remote image URLs are restricted to validated HTTP(S) URLs and downloaded through WordPress core safe HTTP/media APIs.
+
 ## [1.1.0] - 2026-08-08
 
 ### Added
