@@ -1,0 +1,12 @@
+/.git
+/.github
+/.distignore
+/scripts
+/CONTRIBUTING.md
+/SECURITY.md
+/CHANGELOG.md
+/README.md
+/example-post.md
+*.zip
+.DS_Store
+Thumbs.db
