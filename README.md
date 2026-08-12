@@ -10,17 +10,19 @@ Designed to remain suitable for submission to the official WordPress.org Plugin 
 - Parses a deliberately restricted YAML front matter schema without external dependencies.
 - Creates posts or updates an existing post with the same slug.
 - Supports post title, slug, date, status and excerpt.
+- Imports an optional remote featured image and stores accessible alt text.
+- Reuses a previously sideloaded featured image when the same source URL is imported again.
 - Creates categories and tags when the current user is allowed to manage them.
 - Stores SEO title, meta description and source URLs.
 - Integrates with Yoast SEO and Rank Math metadata when those plugins are active.
 - Converts a practical Markdown subset to sanitized WordPress HTML.
 - Provides an optional authenticated REST API for automation.
 - Uses WordPress capabilities, nonces, sanitization and escaping.
-- Makes no external requests and performs no tracking.
+- Performs no tracking and only makes an external request when a `featured_image` URL is explicitly supplied.
 
 ## Version
 
-Current development release: **1.1.0**.
+Current development release: **1.2.0**.
 
 ## Front matter example
 
@@ -28,7 +30,7 @@ Current development release: **1.1.0**.
 ---
 title: "What changed in AI this week"
 slug: "ai-weekly-update"
-date: "2026-08-09"
+date: "2026-08-12"
 status: "draft"
 excerpt: "A practical summary of the most relevant AI developments."
 categories:
@@ -38,12 +40,22 @@ tags:
   - Business
 seo_title: "AI weekly update: what matters now"
 meta_description: "The most relevant AI developments and what they mean for developers and entrepreneurs."
+featured_image: "https://example.com/images/ai-weekly-update.webp"
+featured_image_alt: "Developer reviewing an AI systems dashboard"
 sources:
   - "https://example.com/source"
 ---
 ```
 
 Everything after the closing `---` is treated as Markdown post content.
+
+### Featured images
+
+`featured_image` is optional. When present, it must be an absolute public HTTP(S) URL pointing to a supported image type such as JPEG, PNG, GIF or WebP. The authenticated WordPress user must have the `upload_files` capability.
+
+The plugin downloads the image with WordPress core media APIs, stores it in the Media Library, sets it as the post thumbnail and saves `featured_image_alt` as the attachment alt text. WordPress core's safe HTTP download path validates the URL and redirects before downloading arbitrary remote URLs.
+
+The original source URL is stored on the attachment. Re-importing the same URL reuses the existing attachment instead of creating duplicate Media Library items, which makes repeated automation runs safer.
 
 ## Installation
 
@@ -66,12 +78,12 @@ Request body:
 
 ```json
 {
-  "markdown": "---\ntitle: Example post\nstatus: draft\n---\n\n## Hello\n\nMarkdown content.",
+  "markdown": "---\ntitle: Example post\nstatus: draft\nfeatured_image: https://example.com/cover.webp\nfeatured_image_alt: Example cover\n---\n\n## Hello\n\nMarkdown content.",
   "update_existing": true
 }
 ```
 
-The endpoint uses standard WordPress REST authentication and requires the authenticated user to have `edit_posts`. For external automation, use HTTPS and a WordPress Application Password dedicated to the integration user.
+The endpoint uses standard WordPress REST authentication and requires the authenticated user to have `edit_posts`. Imports containing `featured_image` also require `upload_files`. For external automation, use HTTPS and a WordPress Application Password dedicated to the integration user.
 
 Example with cURL:
 
@@ -87,6 +99,8 @@ The password must never be embedded in public source code or committed to Git.
 ## Supported Markdown
 
 The dependency-free renderer intentionally covers a practical subset: headings, paragraphs, ordered and unordered lists, blockquotes, links, remote images, bold, italic, strikethrough, inline code, fenced code blocks and horizontal rules.
+
+Remote images written inside the Markdown body remain remote URLs in the generated HTML. Only the explicit `featured_image` front matter field is downloaded into the WordPress Media Library.
 
 ## WordPress.org
 

@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       WP24H MD Importer
  * Plugin URI:        https://github.com/asllanmaciel/wp24h-md-importer
- * Description:       Import Markdown files with YAML front matter and create or update WordPress posts with categories, tags, SEO metadata, sources, and an optional authenticated REST API.
- * Version:           1.1.0
+ * Description:       Import Markdown files with YAML front matter into WordPress posts with taxonomy, SEO metadata, featured images, sources, and optional authenticated REST automation.
+ * Version:           1.2.0
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            Asllan Maciel
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WP24H_MD_IMPORTER_VERSION', '1.1.0' );
+define( 'WP24H_MD_IMPORTER_VERSION', '1.2.0' );
 define( 'WP24H_MD_IMPORTER_PATH', plugin_dir_path( __FILE__ ) );
 
 require_once WP24H_MD_IMPORTER_PATH . 'includes/class-wp24h-md-front-matter.php';

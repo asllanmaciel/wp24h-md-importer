@@ -20,11 +20,13 @@ final class WP24H_MD_Importer {
 			throw new RuntimeException( __( 'The front matter must contain a title field.', 'wp24h-md-importer' ) );
 		}
 
-		$slug    = isset( $meta['slug'] ) ? sanitize_title( (string) $meta['slug'] ) : sanitize_title( $title );
-		$status  = self::allowed_status( isset( $meta['status'] ) ? $meta['status'] : 'draft' );
-		$excerpt = isset( $meta['excerpt'] ) ? sanitize_textarea_field( (string) $meta['excerpt'] ) : '';
-		$date    = self::normalize_date( isset( $meta['date'] ) ? $meta['date'] : '' );
-		$content = WP24H_MD_Markdown::to_html( $body );
+		$slug               = isset( $meta['slug'] ) ? sanitize_title( (string) $meta['slug'] ) : sanitize_title( $title );
+		$status             = self::allowed_status( isset( $meta['status'] ) ? $meta['status'] : 'draft' );
+		$excerpt            = isset( $meta['excerpt'] ) ? sanitize_textarea_field( (string) $meta['excerpt'] ) : '';
+		$date               = self::normalize_date( isset( $meta['date'] ) ? $meta['date'] : '' );
+		$content            = WP24H_MD_Markdown::to_html( $body );
+		$featured_image     = isset( $meta['featured_image'] ) ? trim( (string) $meta['featured_image'] ) : '';
+		$featured_image_alt = isset( $meta['featured_image_alt'] ) ? sanitize_text_field( (string) $meta['featured_image_alt'] ) : '';
 
 		if ( in_array( $status, array( 'publish', 'private' ), true ) && ! current_user_can( 'publish_posts' ) ) {
 			$status = 'draft';
@@ -64,15 +66,17 @@ final class WP24H_MD_Importer {
 		self::set_tags( $post_id, isset( $meta['tags'] ) ? $meta['tags'] : array() );
 		self::set_seo_meta( $post_id, $meta );
 		self::set_sources( $post_id, isset( $meta['sources'] ) ? $meta['sources'] : array() );
+		$featured_image_id = self::set_featured_image( $post_id, $featured_image, $featured_image_alt );
 
 		update_post_meta( $post_id, '_wp24h_md_imported_at', current_time( 'mysql' ) );
 		update_post_meta( $post_id, '_wp24h_md_importer_version', WP24H_MD_IMPORTER_VERSION );
 
 		return array(
-			'post_id'  => $post_id,
-			'updated'  => (bool) $existing,
-			'edit_url' => get_edit_post_link( $post_id, '' ),
-			'view_url' => get_permalink( $post_id ),
+			'post_id'           => $post_id,
+			'updated'           => (bool) $existing,
+			'featured_image_id' => $featured_image_id,
+			'edit_url'          => get_edit_post_link( $post_id, '' ),
+			'view_url'          => get_permalink( $post_id ),
 		);
 	}
 
@@ -188,5 +192,66 @@ final class WP24H_MD_Importer {
 			return esc_url_raw( trim( (string) $url ), array( 'http', 'https' ) );
 		}, self::normalize_list( $sources ) ) ) );
 		update_post_meta( $post_id, '_wp24h_md_sources', $sources );
+	}
+
+	private static function set_featured_image( $post_id, $image_url, $alt_text ) {
+		$image_url = trim( (string) $image_url );
+		if ( '' === $image_url ) {
+			return null;
+		}
+
+		if ( ! current_user_can( 'upload_files' ) ) {
+			throw new RuntimeException( __( 'You are not allowed to upload the featured image.', 'wp24h-md-importer' ) );
+		}
+
+		$image_url = esc_url_raw( $image_url, array( 'http', 'https' ) );
+		if ( '' === $image_url || ! wp_http_validate_url( $image_url ) ) {
+			throw new RuntimeException( __( 'The featured_image field must contain a valid public HTTP(S) image URL.', 'wp24h-md-importer' ) );
+		}
+
+		$attachment_id = self::find_featured_image_by_source( $image_url );
+		if ( ! $attachment_id ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+
+			$attachment_id = media_sideload_image( $image_url, $post_id, $alt_text, 'id' );
+			if ( is_wp_error( $attachment_id ) ) {
+				throw new RuntimeException(
+					sprintf(
+						/* translators: %s: image sideload error message. */
+						__( 'Could not import the featured image: %s', 'wp24h-md-importer' ),
+						$attachment_id->get_error_message()
+					)
+				);
+			}
+
+			update_post_meta( $attachment_id, '_wp24h_md_source_url', $image_url );
+		}
+
+		if ( '' !== $alt_text ) {
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+		}
+
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		return (int) $attachment_id;
+	}
+
+	private static function find_featured_image_by_source( $image_url ) {
+		$attachments = get_posts(
+			array(
+				'post_type'        => 'attachment',
+				'post_status'      => 'inherit',
+				'posts_per_page'   => 1,
+				'fields'           => 'ids',
+				'meta_key'         => '_wp24h_md_source_url',
+				'meta_value'       => $image_url,
+				'no_found_rows'    => true,
+				'suppress_filters' => true,
+			)
+		);
+
+		return empty( $attachments ) ? 0 : (int) $attachments[0];
 	}
 }
