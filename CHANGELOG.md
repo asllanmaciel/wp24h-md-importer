@@ -2,7 +2,7 @@
 
 All notable changes to WP24H MD Importer are documented here.
 
-The project follows Semantic Versioning.
+The project follows Semantic Versioning for plugin versions. Versioned sections below describe the plugin's source/version history and do not by themselves imply that a matching Git tag or GitHub Release exists. GitHub distribution releases are published only after the documented release gate passes.
 
 ## [Unreleased]
 
@@ -12,6 +12,7 @@ The project follows Semantic Versioning.
 - Contribution guidelines for compatibility, security and review expectations.
 - Manual distribution build script for producing a clean WordPress plugin ZIP without GitHub Actions.
 - Distribution exclusion rules through `.distignore`.
+- Release gate documentation covering owner/transfer decision, runtime validation, ZIP inspection and tag consistency.
 
 ### Changed
 
