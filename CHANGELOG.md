@@ -12,11 +12,13 @@ The project follows Semantic Versioning for plugin versions. Versioned sections 
 - Contribution guidelines for compatibility, security and review expectations.
 - Manual distribution build script for producing a clean WordPress plugin ZIP without GitHub Actions.
 - Distribution exclusion rules through `.distignore`.
-- Release gate documentation covering owner/transfer decision, runtime validation, ZIP inspection and tag consistency.
+- Release gate documentation covering owner/transfer decision, runtime validation, ZIP verification and tag consistency.
+- Structural release ZIP verifier checking canonical top-level layout, required files and forbidden development/repository-only paths.
 
 ### Changed
 
 - GitHub Actions PHP lint is manual-only while CI usage is being optimized, avoiding automatic Actions consumption on every push and pull request.
+- Release builds use an isolated temporary directory with cleanup and explicit `rsync`/`zip` dependency checks instead of deleting a shared build directory.
 
 ## [1.2.0] - 2026-08-12
 
