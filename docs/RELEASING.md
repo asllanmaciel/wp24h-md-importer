@@ -1,6 +1,6 @@
 # Releasing WP24H MD Importer
 
-GitHub Actions are not required to publish a release. The default release path is local validation + local ZIP build + explicit tag/release creation.
+GitHub Actions are not required to publish a release. The default release path is local validation + local ZIP build/verification + explicit tag/release creation.
 
 ## Version consistency
 
@@ -40,15 +40,31 @@ Then verify the plugin on a disposable WordPress installation, including:
 - featured-image sideload, alt text and duplicate reuse;
 - invalid/unsafe featured-image URLs rejected.
 
-## Build
+## Build and verify
 
-Use the repository build script to create a distribution ZIP after validation:
+Use the repository build script to create the distribution ZIP:
 
 ```bash
 bash scripts/build-zip.sh
 ```
 
-Inspect the ZIP before release. Development-only files excluded by `.distignore` must not appear in the plugin package.
+The build uses an isolated temporary directory and validates that `rsync` and `zip` are available before packaging.
+
+Then verify the exact ZIP that would be released:
+
+```bash
+bash scripts/verify-zip.sh
+```
+
+The verifier checks:
+
+- one canonical top-level directory (`wp24h-md-importer/`);
+- required plugin files are present;
+- `.github`, build scripts and build artifacts are absent;
+- repository-only documentation/governance files excluded by `.distignore` are absent;
+- no nested ZIP is included.
+
+Both scripts intentionally use shell constructs compatible with older Bash environments, including Bash 3.2-style array population in the verifier.
 
 ## First GitHub release
 
@@ -61,11 +77,12 @@ Recommended release order:
 1. finish local/runtime validation;
 2. confirm version fields are consistent;
 3. update `CHANGELOG.md` if release contents changed;
-4. build and inspect the ZIP;
-5. create immutable tag `v1.2.0` on the validated commit;
-6. create the GitHub Release from that tag;
-7. attach the validated ZIP if desired;
-8. verify the released ZIP installs cleanly.
+4. build the ZIP;
+5. run `scripts/verify-zip.sh` against that ZIP;
+6. install the verified ZIP in a clean WordPress instance;
+7. create immutable tag `v1.2.0` on the validated commit;
+8. create the GitHub Release from that tag;
+9. attach the same verified ZIP if desired.
 
 ## Repository transfer note
 
