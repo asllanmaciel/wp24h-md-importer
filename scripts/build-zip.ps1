@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $slug = 'wp24h-md-importer'
-$root = Split-Path -Parent $PSScriptRoot
+$root = (Resolve-Path (Split-Path -Parent $PSScriptRoot)).Path.TrimEnd('\', '/')
 $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ($slug + '-' + [Guid]::NewGuid().ToString('N'))
 $packageDir = Join-Path $tempRoot $slug
 $zipFile = Join-Path $OutputDirectory ($slug + '.zip')
@@ -33,7 +33,7 @@ try {
     New-Item -ItemType Directory -Force -Path $packageDir, $OutputDirectory | Out-Null
 
     Get-ChildItem -LiteralPath $root -Recurse -Force | ForEach-Object {
-        $relative = [System.IO.Path]::GetRelativePath($root, $_.FullName)
+        $relative = $_.FullName.Substring($root.Length).TrimStart('\', '/')
         if (Test-IgnoredPath $relative) {
             return
         }
