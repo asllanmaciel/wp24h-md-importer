@@ -3,25 +3,44 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SLUG="wp24h-md-importer"
-BUILD_DIR="${ROOT}/build"
-PACKAGE_DIR="${BUILD_DIR}/${SLUG}"
-ZIP_FILE="${BUILD_DIR}/${SLUG}.zip"
+OUTPUT_DIR="${ROOT}/build"
+TEMP_BASE="${RUNNER_TEMP:-${TMPDIR:-/tmp}}"
+TEMP_ROOT="$(mktemp -d "${TEMP_BASE}/${SLUG}.XXXXXX")"
+PACKAGE_DIR="${TEMP_ROOT}/${SLUG}"
+ZIP_FILE="${OUTPUT_DIR}/${SLUG}.zip"
 
-rm -rf "${BUILD_DIR}"
-mkdir -p "${PACKAGE_DIR}"
+cleanup() {
+  rm -rf "${TEMP_ROOT}"
+}
+trap cleanup EXIT
 
-cd "${ROOT}"
+for command_name in rsync zip; do
+  if ! command -v "${command_name}" >/dev/null 2>&1; then
+    printf 'Required command not found: %s\n' "${command_name}" >&2
+    exit 1
+  fi
+done
 
-# Copy the repository into a clean plugin directory while honoring .distignore.
-rsync -a --delete --exclude-from=.distignore ./ "${PACKAGE_DIR}/"
+mkdir -p "${PACKAGE_DIR}" "${OUTPUT_DIR}"
 
-# Basic release sanity checks.
-test -f "${PACKAGE_DIR}/${SLUG}.php"
-test -f "${PACKAGE_DIR}/readme.txt"
-test -f "${PACKAGE_DIR}/LICENSE"
-test -d "${PACKAGE_DIR}/includes"
+rsync -a --delete --exclude-from="${ROOT}/.distignore" "${ROOT}/" "${PACKAGE_DIR}/"
 
-cd "${BUILD_DIR}"
-zip -qr "${ZIP_FILE}" "${SLUG}"
+for required_path in \
+  "${PACKAGE_DIR}/${SLUG}.php" \
+  "${PACKAGE_DIR}/readme.txt" \
+  "${PACKAGE_DIR}/LICENSE" \
+  "${PACKAGE_DIR}/includes"
+do
+  if [[ ! -e "${required_path}" ]]; then
+    printf 'Required release path missing: %s\n' "${required_path}" >&2
+    exit 1
+  fi
+done
 
-echo "Built ${ZIP_FILE}"
+rm -f "${ZIP_FILE}"
+(
+  cd "${TEMP_ROOT}"
+  zip -qr "${ZIP_FILE}" "${SLUG}"
+)
+
+printf 'Built %s\n' "${ZIP_FILE}"
