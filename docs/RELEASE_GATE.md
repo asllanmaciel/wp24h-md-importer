@@ -30,9 +30,13 @@ Verify at least:
 
 - run PHP syntax checks;
 - build with `bash scripts/build-zip.sh`;
-- inspect the ZIP against `.distignore`;
-- install the ZIP on a clean WordPress instance;
-- confirm plugin activation and the main import flow from the ZIP.
+- verify the exact artifact with `bash scripts/verify-zip.sh`;
+- confirm the verifier accepts the canonical top-level directory and required plugin files;
+- confirm repository-only/development files excluded by `.distignore` are absent;
+- install `build/wp24h-md-importer.zip` on a clean WordPress instance;
+- confirm plugin activation and the main import flow from that verified ZIP.
+
+The release artifact must be the same ZIP that passed verification and clean-install testing.
 
 ## Version consistency
 
