@@ -17,7 +17,7 @@ GitHub Release title
 
 ## Local validation
 
-At minimum:
+At minimum on Bash-compatible systems:
 
 ```bash
 find . -type f -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
@@ -42,29 +42,50 @@ Then verify the plugin on a disposable WordPress installation, including:
 
 ## Build and verify
 
-Use the repository build script to create the distribution ZIP:
+### Bash / Unix-like environments
+
+Build the distribution ZIP:
 
 ```bash
 bash scripts/build-zip.sh
 ```
 
-The build uses an isolated temporary directory and validates that `rsync` and `zip` are available before packaging.
-
-Then verify the exact ZIP that would be released:
+Verify the exact ZIP that would be released:
 
 ```bash
 bash scripts/verify-zip.sh
 ```
 
-The verifier checks:
+The build uses an isolated temporary directory and validates that `rsync` and `zip` are available before packaging. The verifier is compatible with Bash 3.2-style environments.
+
+### PowerShell / Windows
+
+Build the same distribution shape without requiring WSL, `rsync`, or `zip` binaries:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build-zip.ps1
+```
+
+Verify it with the PowerShell-native ZIP reader:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/verify-zip.ps1
+```
+
+The PowerShell scripts are written to remain compatible with Windows PowerShell 5.1 as well as newer PowerShell versions.
+
+### Verification contract
+
+Both verification paths check the same release policy:
 
 - one canonical top-level directory (`wp24h-md-importer/`);
 - required plugin files are present;
-- `.github`, build scripts and build artifacts are absent;
+- the `includes/` runtime directory is present;
+- `.github`, build scripts and repository-only tooling are absent;
 - repository-only documentation/governance files excluded by `.distignore` are absent;
 - no nested ZIP is included.
 
-Both scripts intentionally use shell constructs compatible with older Bash environments, including Bash 3.2-style array population in the verifier.
+A release only needs one fully validated build path on the machine producing the artifact. Cross-platform parity exists so maintainers are not forced into one operating system or shell.
 
 ## First GitHub release
 
@@ -77,8 +98,8 @@ Recommended release order:
 1. finish local/runtime validation;
 2. confirm version fields are consistent;
 3. update `CHANGELOG.md` if release contents changed;
-4. build the ZIP;
-5. run `scripts/verify-zip.sh` against that ZIP;
+4. build the ZIP using Bash or PowerShell;
+5. run the matching verifier against that exact ZIP;
 6. install the verified ZIP in a clean WordPress instance;
 7. create immutable tag `v1.2.0` on the validated commit;
 8. create the GitHub Release from that tag;
