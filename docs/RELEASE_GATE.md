@@ -29,14 +29,15 @@ Verify at least:
 ## Distribution validation
 
 - run PHP syntax checks;
-- build with `bash scripts/build-zip.sh`;
-- verify the exact artifact with `bash scripts/verify-zip.sh`;
-- confirm the verifier accepts the canonical top-level directory and required plugin files;
+- choose one reproducible local packaging path:
+  - Bash: `bash scripts/build-zip.sh` followed by `bash scripts/verify-zip.sh`;
+  - PowerShell: `powershell -ExecutionPolicy Bypass -File scripts/build-zip.ps1` followed by `powershell -ExecutionPolicy Bypass -File scripts/verify-zip.ps1`;
+- confirm the selected verifier accepts the canonical top-level directory and required plugin files;
 - confirm repository-only/development files excluded by `.distignore` are absent;
 - install `build/wp24h-md-importer.zip` on a clean WordPress instance;
 - confirm plugin activation and the main import flow from that verified ZIP.
 
-The release artifact must be the same ZIP that passed verification and clean-install testing.
+The release artifact must be the same ZIP that passed verification and clean-install testing. Both packaging paths implement the same artifact policy; a release does not need to be built twice on different operating systems.
 
 ## Version consistency
 
