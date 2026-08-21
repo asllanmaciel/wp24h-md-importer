@@ -1,8 +1,8 @@
 # Harness de Compatibilidade WordPress — WP24H MD Importer
 
-**Data:** 2026-08-21  
-**Status:** aguardando revisão humana antes do planejamento de implementação  
-**Repositório:** asllanmaciel/wp24h-md-importer  
+**Data:** 2026-08-21
+**Status:** aguardando revisão humana antes do planejamento de implementação
+**Repositório:** asllanmaciel/wp24h-md-importer
 **Origem:** radar/2026/08/2026-08-20.md
 
 ## Propósito
