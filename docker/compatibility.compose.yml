@@ -1,0 +1,63 @@
+name: wp24h-compat
+
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: wordpress
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - db-data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:${WP_COMPAT_VERSION}-php8.3-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    ports:
+      - "${WP_COMPAT_PORT:-8080}:80"
+    volumes:
+      - wordpress-data:/var/www/html
+      - ..:/var/www/html/wp-content/plugins/wp24h-md-importer:ro
+
+  cli:
+    image: wordpress:cli-php8.3
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WP_COMPAT_WP_ROOT: /var/www/html
+      WP_COMPAT_FIXTURE_DIR: /var/www/html/wp-content/plugins/wp24h-md-importer/tests/compatibility/fixtures
+    working_dir: /var/www/html
+    volumes:
+      - wordpress-data:/var/www/html
+      - ..:/var/www/html/wp-content/plugins/wp24h-md-importer:ro
+
+  fixtures:
+    image: php:8.3-cli-alpine
+    working_dir: /fixtures
+    command: ["php", "-S", "0.0.0.0:80", "router.php"]
+    volumes:
+      - ../tests/compatibility/fixtures:/fixtures:ro
+
+volumes:
+  db-data:
+  wordpress-data:
