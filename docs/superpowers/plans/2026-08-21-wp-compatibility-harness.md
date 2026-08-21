@@ -45,7 +45,7 @@
 - Consumes: environment variable WP_COMPAT_VERSION.
 - Produces: project-scoped services db, wordpress, cli and fixtures.
 
-- [ ] **Step 1: Write Compose services**
+- [x] **Step 1: Write Compose services**
 
 Implement db, wordpress, cli and fixtures. Required boundaries:
 
@@ -75,7 +75,7 @@ services:
 
 Configure cli with the same WordPress volume and db network. Wrapper scripts set Compose project names wp24h-compat-71 and wp24h-compat-704.
 
-- [ ] **Step 2: Write Markdown fixtures**
+- [x] **Step 2: Write Markdown fixtures**
 
 basic.md must contain:
 
@@ -93,7 +93,7 @@ Este post confirma a importação mínima.
 
 complete.md must include title, slug, draft status, excerpt, categories, tags, seo_title, meta_description, sources, featured_image http://fixtures/featured.png, featured_image_alt, and a body with heading, list, link and bold text.
 
-- [ ] **Step 3: Add valid local images**
+- [x] **Step 3: Add valid local images**
 
 Create small valid PNG/JPEG/WebP fixtures with no user metadata. Verify signatures:
 
@@ -105,7 +105,7 @@ Format-Hex tests/compatibility/fixtures/featured.webp -Count 12
 
 Expected: PNG begins 89 50 4E 47; JPEG begins FF D8 FF; WebP contains WEBP at offset 8.
 
-- [ ] **Step 4: Verify isolated service startup**
+- [x] **Step 4: Verify isolated service startup**
 
 ~~~powershell
 $env:WP_COMPAT_VERSION = "7.1"
@@ -115,7 +115,7 @@ docker compose -p wp24h-compat-71 -f docker/compatibility.compose.yml ps
 
 Expected: db is healthy and fixtures is running.
 
-- [ ] **Step 5: Clean up and commit**
+- [x] **Step 5: Clean up and commit**
 
 ~~~powershell
 docker compose -p wp24h-compat-71 -f docker/compatibility.compose.yml down --volumes --remove-orphans
@@ -134,7 +134,7 @@ git commit -m "test: add isolated WordPress compatibility fixtures"
 - Consumes: active WordPress plugin, local fixture host http://fixtures, and WP_COMPAT_REPORT.
 - Produces: JSON with WordPress/PHP/plugin versions, named checks and PASS or FAIL.
 
-- [ ] **Step 1: Write the first failing basic-import check**
+- [x] **Step 1: Write the first failing basic-import check**
 
 Start run.php with a named assertion helper and add:
 
@@ -144,7 +144,7 @@ $assert( is_int( $result['post_id'] ) && $result['post_id'] > 0, 'basic import c
 $assert( 'compatibilidade-basica' === get_post_field( 'post_name', $result['post_id'] ), 'basic import keeps slug' );
 ~~~
 
-- [ ] **Step 2: Verify RED before WordPress bootstrap**
+- [x] **Step 2: Verify RED before WordPress bootstrap**
 
 ~~~powershell
 php tests/compatibility/run.php
@@ -152,11 +152,11 @@ php tests/compatibility/run.php
 
 Expected: failure because WordPress bootstrap is unavailable. This proves the runner cannot pass outside the target environment.
 
-- [ ] **Step 3: Implement bootstrap and activation guard**
+- [x] **Step 3: Implement bootstrap and activation guard**
 
 Use WP_COMPAT_WP_ROOT to load wp-load.php. Abort with a clear error if wp24h-md-importer/wp24h-md-importer.php is inactive. Do not load plugin classes manually.
 
-- [ ] **Step 4: Verify basic-import GREEN inside WP-CLI**
+- [x] **Step 4: Verify basic-import GREEN inside WP-CLI**
 
 ~~~powershell
 docker compose -p wp24h-compat-71 -f docker/compatibility.compose.yml run --rm cli php /var/www/html/wp-content/plugins/wp24h-md-importer/tests/compatibility/run.php
@@ -164,7 +164,7 @@ docker compose -p wp24h-compat-71 -f docker/compatibility.compose.yml run --rm c
 
 Expected: basic import passes and every failure reports its check name.
 
-- [ ] **Step 5: Add one check at a time, red then green**
+- [x] **Step 5: Add one check at a time, red then green**
 
 Add checks in this order, running the command above after each:
 
@@ -179,7 +179,7 @@ Add checks in this order, running the command above after each:
 
 Each added check must first fail for its intended missing condition, then pass after the minimal harness/environment correction.
 
-- [ ] **Step 6: Emit report and fail correctly**
+- [x] **Step 6: Emit report and fail correctly**
 
 On success write reports/compatibility/<version>.json:
 
@@ -195,7 +195,7 @@ On success write reports/compatibility/<version>.json:
 
 On exception write status FAIL, failed check and message, then exit 1.
 
-- [ ] **Step 7: Run full runner and commit**
+- [x] **Step 7: Run full runner and commit**
 
 ~~~powershell
 docker compose -p wp24h-compat-71 -f docker/compatibility.compose.yml run --rm cli php /var/www/html/wp-content/plugins/wp24h-md-importer/tests/compatibility/run.php
@@ -218,7 +218,7 @@ Expected: all named checks pass and report is produced.
 - Consumes: version argument exactly equal to 7.1 or 7.0.4.
 - Produces: exit 0 only on PASS; cleanup after success or failure.
 
-- [ ] **Step 1: Write failing invalid-version behavior**
+- [x] **Step 1: Write failing invalid-version behavior**
 
 ~~~powershell
 ./scripts/compatibility-check.ps1 -WordPressVersion 6.5
@@ -232,7 +232,7 @@ Expected: non-zero and “supported versions: 7.1, 7.0.4”.
 
 Expected: the equivalent non-zero result.
 
-- [ ] **Step 2: Implement wrapper lifecycle**
+- [x] **Step 2: Implement wrapper lifecycle**
 
 ~~~text
 validate Docker daemon
@@ -248,7 +248,7 @@ validate Docker daemon
 
 Use try/finally in PowerShell and trap in shell. The wrappers must not remove Docker resources outside their Compose project.
 
-- [ ] **Step 3: Add report hygiene**
+- [x] **Step 3: Add report hygiene**
 
 Add to .gitignore:
 
@@ -259,7 +259,7 @@ Add to .gitignore:
 
 Create the .gitkeep file.
 
-- [ ] **Step 4: Document commands and BLOCKED semantics**
+- [x] **Step 4: Document commands and BLOCKED semantics**
 
 docs/compatibility.md must contain:
 
@@ -275,7 +275,7 @@ docs/compatibility.md must contain:
 
 Explain that unavailable images yield BLOCKED and never authorize Tested up to changes.
 
-- [ ] **Step 5: Verify invalid versions and commit**
+- [x] **Step 5: Verify invalid versions and commit**
 
 Run both invalid-version commands; each must exit non-zero. Then:
 
@@ -294,7 +294,7 @@ git commit -m "test: add compatibility harness commands"
 - Consumes: complete wrappers and runner.
 - Produces: reports for 7.1 and 7.0.4.
 
-- [ ] **Step 1: Run 7.1**
+- [x] **Step 1: Run 7.1**
 
 ~~~powershell
 ./scripts/compatibility-check.ps1 -WordPressVersion 7.1
@@ -302,7 +302,7 @@ git commit -m "test: add compatibility harness commands"
 
 Expected: exit 0 and reports/compatibility/7.1.json status PASS. If unavailable, report BLOCKED and stop.
 
-- [ ] **Step 2: Run 7.0.4**
+- [x] **Step 2: Run 7.0.4**
 
 ~~~powershell
 ./scripts/compatibility-check.ps1 -WordPressVersion 7.0.4
@@ -310,7 +310,7 @@ Expected: exit 0 and reports/compatibility/7.1.json status PASS. If unavailable,
 
 Expected: exit 0 and reports/compatibility/7.0.4.json status PASS.
 
-- [ ] **Step 3: Verify cleanup and scope**
+- [x] **Step 3: Verify cleanup and scope**
 
 ~~~powershell
 docker ps -a --filter "name=wp24h-compat-"
