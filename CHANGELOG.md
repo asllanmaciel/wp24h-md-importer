@@ -15,6 +15,7 @@ The project follows Semantic Versioning for plugin versions. Versioned sections 
 - Release gate documentation covering owner/transfer decision, runtime validation, ZIP verification and tag consistency.
 - Structural release ZIP verifier checking canonical top-level layout, required files and forbidden development/repository-only paths.
 - PowerShell-native build and verification scripts for producing the same release shape on Windows without WSL.
+- Simple dependency-free Markdown table rendering with escaped inline cell content and focused regression checks.
 
 ### Changed
 
