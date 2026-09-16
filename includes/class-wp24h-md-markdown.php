@@ -147,7 +147,14 @@ final class WP24H_MD_Markdown {
 	}
 
 	private static function is_table_row( $line ) {
-		return false !== strpos( (string) $line, '|' ) && count( self::split_table_row( $line ) ) >= 2;
+		$line = (string) $line;
+		if ( false === strpos( $line, '|' ) ) {
+			return false;
+		}
+		if ( preg_match( '/^\s*(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+|```)/', $line ) ) {
+			return false;
+		}
+		return count( self::split_table_row( $line ) ) >= 2;
 	}
 
 	private static function is_table_separator( $line ) {
