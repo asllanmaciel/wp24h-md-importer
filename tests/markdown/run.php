@@ -61,6 +61,9 @@ $assert( false !== strpos( $fenced, '<pre><code class="language-text">| Name | S
 $list = WP24H_MD_Markdown::to_html( "- alpha | beta\n- gamma" );
 $assert( false !== strpos( $list, '<li>alpha | beta</li>' ), 'pipe characters remain valid inside list items' );
 
+$table_then_list = WP24H_MD_Markdown::to_html( "| Name | Status |\n|---|---|\n| Ana | Active |\n- alpha | beta" );
+$assert( false !== strpos( $table_then_list, "</table>\n<ul>\n<li>alpha | beta</li>" ), 'list with pipes after a table remains a list' );
+
 $invalid_separator = WP24H_MD_Markdown::to_html(
 	"| Name | Status |\n|--|---|\n| Ana | Active |"
 );
