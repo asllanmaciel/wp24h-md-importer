@@ -100,7 +100,18 @@ The password must never be embedded in public source code or committed to Git.
 
 ## Supported Markdown
 
-The dependency-free renderer intentionally covers a practical subset: headings, paragraphs, ordered and unordered lists, blockquotes, links, remote images, bold, italic, strikethrough, inline code, fenced code blocks and horizontal rules.
+The dependency-free renderer intentionally covers a practical subset: headings, paragraphs, ordered and unordered lists, blockquotes, links, remote images, bold, italic, strikethrough, inline code, fenced code blocks, horizontal rules and simple pipe tables.
+
+A table requires a header row followed by a separator row with at least three hyphens per column:
+
+```markdown
+| Name | Status |
+|---|---|
+| Ana | **Active** |
+| Bruno | Inactive |
+```
+
+Table cells use the same escaped inline renderer as normal text, so supported inline Markdown continues to work without allowing raw HTML through the table parser. Column alignment syntax, row or column spanning and nested block Markdown inside cells are intentionally outside the supported subset.
 
 Remote images written inside the Markdown body remain remote URLs in the generated HTML. Only the explicit `featured_image` front matter field is downloaded into the WordPress Media Library.
 
